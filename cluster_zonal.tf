@@ -26,7 +26,7 @@ resource "google_container_cluster" "zonal_primary" {
   description = "${var.description}"
   project     = "${var.project_id}"
 
-  zone           = "${var.zones[0]}"
+  location       = "${var.zones[0]}"
   node_locations = ["${slice(var.zones,1,length(var.zones))}"]
 
   network            = "${replace(data.google_compute_network.gke_network.self_link, "https://www.googleapis.com/compute/v1/", "")}"
@@ -105,7 +105,7 @@ resource "google_container_node_pool" "zonal_pools" {
   count              = "${var.regional ? 0 : length(var.node_pools)}"
   name               = "${lookup(var.node_pools[count.index], "name")}"
   project            = "${var.project_id}"
-  zone               = "${var.zones[0]}"
+  location           = "${var.zones[0]}"
   cluster            = "${google_container_cluster.zonal_primary.name}"
   version            = "${lookup(var.node_pools[count.index], "auto_upgrade", false) ? "" : lookup(var.node_pools[count.index], "version", local.node_version_zonal)}"
   initial_node_count = "${lookup(var.node_pools[count.index], "initial_node_count", lookup(var.node_pools[count.index], "min_count", 1))}"
@@ -125,7 +125,6 @@ resource "google_container_node_pool" "zonal_pools" {
     machine_type = "${lookup(var.node_pools[count.index], "machine_type", "n1-standard-2")}"
     labels       = "${merge(map("cluster_name", var.name), map("node_pool", lookup(var.node_pools[count.index], "name")), var.node_pools_labels["all"], var.node_pools_labels[lookup(var.node_pools[count.index], "name")])}"
     metadata     = "${merge(map("cluster_name", var.name), map("node_pool", lookup(var.node_pools[count.index], "name")), var.node_pools_metadata["all"], var.node_pools_metadata[lookup(var.node_pools[count.index], "name")], map("disable-legacy-endpoints", var.disable_legacy_metadata_endpoints))}"
-    taint        = "${concat(var.node_pools_taints["all"], var.node_pools_taints[lookup(var.node_pools[count.index], "name")])}"
     tags         = ["${concat(list("gke-${var.name}"), list("gke-${var.name}-${lookup(var.node_pools[count.index], "name")}"), var.node_pools_tags["all"], var.node_pools_tags[lookup(var.node_pools[count.index], "name")])}"]
 
     disk_size_gb    = "${lookup(var.node_pools[count.index], "disk_size_gb", 100)}"

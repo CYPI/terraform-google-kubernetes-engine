@@ -67,6 +67,27 @@ variable "node_version" {
   default     = ""
 }
 
+private_cluster_config {
+  enable_private_endpoint = "${var.enable_private_endpoint}"
+  enable_private_nodes    = "${var.enable_private_nodes}"
+  master_ipv4_cidr_block  = "${var.master_ipv4_cidr_block}"
+}
+
+variable "enable_private_endpoint" {
+  description = "Use master internal IP as the cluster endpoint"
+  default     = false
+}
+
+variable "enable_private_nodes" {
+  description = "Whether nodes have internal IP addresses only. If enabled, all nodes are given only RFC 1918 private addresses and communicate with the master via private networking."
+  default     = false
+}
+
+variable "master_ipv4_cidr_block" {
+  description = "The IP range in CIDR notation to use for the hosted master network. This range will be used for assigning internal IP addresses to the master or set of masters, as well as the ILB VIP. This range must not overlap with any other ranges in use within the cluster's network."
+  default     = ""
+}
+
 variable "master_authorized_networks_config" {
   type = "list"
 

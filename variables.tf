@@ -67,12 +67,6 @@ variable "node_version" {
   default     = ""
 }
 
-private_cluster_config {
-  enable_private_endpoint = "${var.enable_private_endpoint}"
-  enable_private_nodes    = "${var.enable_private_nodes}"
-  master_ipv4_cidr_block  = "${var.master_ipv4_cidr_block}"
-}
-
 variable "enable_private_endpoint" {
   description = "Use master internal IP as the cluster endpoint"
   default     = false

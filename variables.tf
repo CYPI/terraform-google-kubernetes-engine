@@ -256,3 +256,23 @@ variable "issue_client_certificate" {
   description = "Issues a client certificate to authenticate to the cluster endpoint. To maximize the security of your cluster, leave this option disabled. Client certificates don't automatically rotate and aren't easily revocable. WARNING: changing this after cluster creation is destructive!"
   default     = "false"
 }
+
+variable "database_encryption_state" {
+  description = "ENCRYPTED or DECRYPTED"
+  default     = "DECRYPTED"
+}
+
+variable "database_encryption_key_name" {
+  description = "The key to use to encrypt/decrypt secrets. See the DatabaseEncryption definition for more information."
+  default     = ""
+}
+
+variable "istio_config_disabled" {
+  description = "The status of the Istio addon, which makes it easy to set up Istio for services in a cluster. It is disabled by default. Set disabled = false to enable."
+  default     = "true"
+}
+
+variable "istio_config_auth" {
+  description = "The authentication type between services in Istio. Available options include AUTH_MUTUAL_TLS."
+  default     = "AUTH_MUTUAL_TLS"
+}

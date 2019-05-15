@@ -20,7 +20,7 @@
   Create regional cluster
  *****************************************/
 resource "google_container_cluster" "primary" {
-  provider    = "google"
+  provider    = "google-beta"
   count       = "${var.regional ? 1 : 0}"
   name        = "${var.name}"
   description = "${var.description}"
@@ -63,6 +63,11 @@ resource "google_container_cluster" "primary" {
     network_policy_config {
       disabled = "${var.network_policy ? 0 : 1}"
     }
+
+    istio_config {
+      disabled = "${var.istio_config_disabled}"
+      auth     = "${var.istio_config_auth}"
+    }
   }
 
   ip_allocation_policy {
@@ -98,6 +103,11 @@ resource "google_container_cluster" "primary" {
     node_config {
       service_account = "${lookup(var.node_pools[0], "service_account", local.service_account)}"
     }
+  }
+
+  database_encryption {
+    state    = "${var.database_encryption_state}"
+    key_name = "${var.database_encryption_key_name}"
   }
 
   remove_default_node_pool = "${var.remove_default_node_pool}"

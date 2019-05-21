@@ -276,3 +276,8 @@ variable "istio_config_auth" {
   description = "The authentication type between services in Istio. Available options include AUTH_MUTUAL_TLS."
   default     = "AUTH_MUTUAL_TLS"
 }
+
+variable "authenticator_group" {
+  description = "The authenticator security group for RBAC. Needs to start with 'gke-security-groups'"
+  default     = ""
+}

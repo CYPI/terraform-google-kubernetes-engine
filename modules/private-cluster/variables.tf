@@ -256,3 +256,8 @@ variable "issue_client_certificate" {
   description = "Issues a client certificate to authenticate to the cluster endpoint. To maximize the security of your cluster, leave this option disabled. Client certificates don't automatically rotate and aren't easily revocable. WARNING: changing this after cluster creation is destructive!"
   default     = "false"
 }
+
+variable "authenticator_group" {
+  description = "The authenticator security group for RBAC. Needs to start with 'gke-security-groups'"
+  default     = ""
+}

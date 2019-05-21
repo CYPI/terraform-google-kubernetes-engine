@@ -110,6 +110,10 @@ resource "google_container_cluster" "zonal_primary" {
     key_name = "${var.database_encryption_key_name}"
   }
 
+  authenticator_groups_config {
+    security_group = "${var.authenticator_group}"
+  }
+
   remove_default_node_pool = "${var.remove_default_node_pool}"
 }
 

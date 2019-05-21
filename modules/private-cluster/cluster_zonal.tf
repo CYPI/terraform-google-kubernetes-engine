@@ -100,6 +100,10 @@ resource "google_container_cluster" "zonal_primary" {
     master_ipv4_cidr_block  = "${var.master_ipv4_cidr_block}"
   }
 
+  authenticator_groups_config {
+    security_group = "${var.authenticator_group}"
+  }
+
   remove_default_node_pool = "${var.remove_default_node_pool}"
 }
 

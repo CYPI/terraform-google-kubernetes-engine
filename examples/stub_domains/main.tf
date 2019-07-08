@@ -19,12 +19,12 @@ locals {
 }
 
 provider "google" {
-  version = "~> 2.3.0"
+  version = "~> 2.9.0"
   region  = "${var.region}"
 }
 
 provider "google-beta" {
-  version = "~> 2.3.0"
+  version = "~> 2.9.0"
   region  = "${var.region}"
 }
 
@@ -39,6 +39,8 @@ module "gke" {
   ip_range_services = "${var.ip_range_services}"
   network_policy    = true
   service_account   = "${var.compute_engine_service_account}"
+
+  configure_ip_masq = true
 
   stub_domains {
     "example.com" = [

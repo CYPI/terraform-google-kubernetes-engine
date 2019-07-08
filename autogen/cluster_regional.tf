@@ -20,22 +20,28 @@
   Create regional cluster
  *****************************************/
 resource "google_container_cluster" "primary" {
-  provider    = "{% if private_cluster %}google-beta{%else %}google{% endif %}"
+  provider    = "{% if private_cluster or beta_cluster %}google-beta{% else %}google{% endif %}"
   count       = "${var.regional ? 1 : 0}"
   name        = "${var.name}"
   description = "${var.description}"
   project     = "${var.project_id}"
 
-  region         = "${var.region}"
-  node_locations = ["${coalescelist(compact(var.zones), sort(random_shuffle.available_zones.result))}"]
+  region            = "${var.region}"
+  node_locations    = ["${coalescelist(compact(var.zones), sort(random_shuffle.available_zones.result))}"]
+  cluster_ipv4_cidr = "${var.cluster_ipv4_cidr}"
+  network           = "${replace(data.google_compute_network.gke_network.self_link, "https://www.googleapis.com/compute/v1/", "")}"
+  network_policy    = "${local.cluster_network_policy["${var.network_policy ? "enabled" : "disabled"}"]}"
 
-  network            = "${replace(data.google_compute_network.gke_network.self_link, "https://www.googleapis.com/compute/v1/", "")}"
   subnetwork         = "${replace(data.google_compute_subnetwork.gke_subnetwork.self_link, "https://www.googleapis.com/compute/v1/", "")}"
   min_master_version = "${local.kubernetes_version_regional}"
 
   logging_service    = "${var.logging_service}"
   monitoring_service = "${var.monitoring_service}"
 
+  {% if beta_cluster %}
+  enable_binary_authorization       = "${var.enable_binary_authorization}"
+  pod_security_policy_config        = "${var.pod_security_policy_config}"
+  {% endif %}
   master_authorized_networks_config = ["${var.master_authorized_networks_config}"]
 
   master_auth {
@@ -63,6 +69,14 @@ resource "google_container_cluster" "primary" {
     network_policy_config {
       disabled = "${var.network_policy ? 0 : 1}"
     }
+    {% if beta_cluster %}
+
+    istio_config {
+      disabled = "${var.istio ? 0 : 1}"
+    }
+
+    cloudrun_config = "${local.cluster_cloudrun_config["${var.cloudrun ? "enabled" : "disabled"}"]}"
+    {% endif %}
   }
 
   ip_allocation_policy {
@@ -87,10 +101,14 @@ resource "google_container_cluster" "primary" {
   }
 
   node_pool {
-    name = "default-pool"
+    name               = "default-pool"
+    initial_node_count = "${var.initial_node_count}"
 
     node_config {
       service_account = "${lookup(var.node_pools[0], "service_account", local.service_account)}"
+      {% if beta_cluster %}
+      workload_metadata_config = "${local.cluster_node_metadata_config["${var.node_metadata == "UNSPECIFIED" ? "unspecified" : "specified"}"]}"
+      {% endif %}
     }
   }
 {% if private_cluster %}
@@ -103,6 +121,9 @@ resource "google_container_cluster" "primary" {
 {% endif %}
 
   remove_default_node_pool = "${var.remove_default_node_pool}"
+{% if beta_cluster %}
+  database_encryption      = ["${var.database_encryption}"]
+{% endif %}
 }
 
 /******************************************
@@ -145,6 +166,15 @@ resource "google_container_node_pool" "pools" {
       "${concat(var.node_pools_oauth_scopes["all"],
       var.node_pools_oauth_scopes[lookup(var.node_pools[count.index], "name")])}",
     ]
+
+    guest_accelerator {
+      type  = "${lookup(var.node_pools[count.index], "accelerator_type", "")}"
+      count = "${lookup(var.node_pools[count.index], "accelerator_count", 0)}"
+    }
+    {% if beta_cluster %}
+
+    workload_metadata_config = "${local.cluster_node_metadata_config["${var.node_metadata == "UNSPECIFIED" ? "unspecified" : "specified"}"]}"
+    {% endif %}
   }
 
   lifecycle {

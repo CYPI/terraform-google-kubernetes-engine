@@ -8,6 +8,36 @@ Extending the adopted spec, each change should have a link to its corresponding 
 
 ## [Unreleased]
 
+### Added
+
+* Add configuration flag for enable BinAuthZ Admission controller [#160] [#188]
+* Add configuration flag for `pod_security_policy_config` [#163] [#188]
+* Support for a guest accelerator in node pool configuration. [#197]
+* Support to scale the default node cluster. [#149]
+* Support for configuring the network policy provider. [#159]
+* Support for database encryption. [#165]
+* Submodules for public and private clusters with beta features. [#124] [#188]
+* Support for configuring cluster IPv4 CIDRs. [#193]
+* Support for configuring IP Masquerade. [#187]
+* Support for v2.9 of the Google providers. [#198]
+
+### Fixed
+
+* Dropped support for v2.7 of the Google providers; these versions were
+  incompatible with the guest accelerator. [#198]
+
+## [v2.1.0] - 2019-05-30
+
+### Added
+
+* Support for v2.6 and v2.7 of the Google providers. [#152]
+* `deploy_using_private_endpoint` variable on `private-cluster`
+  submodule. [#136]
+
+### Fixed
+
+* The dependency on jq has been documented in the README. [#151]
+
 ## [v2.0.1] - 2019-05-01
 
 ### Fixed
@@ -101,7 +131,8 @@ Extending the adopted spec, each change should have a link to its corresponding 
 
 * Initial release of module.
 
-[Unreleased]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/compare/v2.1.0...HEAD
+[v2.1.0]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/compare/v2.0.1...v2.1.0
 [v2.0.1]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/compare/v2.0.0...v2.0.1
 [v2.0.0]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/compare/v1.0.1...v2.0.0
 [v1.0.1]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/compare/v1.0.0...v1.0.1
@@ -111,8 +142,22 @@ Extending the adopted spec, each change should have a link to its corresponding 
 [v0.3.0]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/compare/v0.2.0...v0.3.0
 [v0.2.0]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/compare/v0.1.0...v0.2.0
 
+[#198]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/198
+[#197]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/197
+[#193]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/193
+[#188]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/188
+[#187]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/187
+[#165]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/165
+[#163]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/163
+[#160]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/160
+[#159]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/159
+[#152]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/152
+[#151]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/151
+[#149]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/149
 [#148]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/148
+[#136]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/136
 [#132]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/132
+[#124]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/124
 [#121]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/121
 [#109]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/109
 [#108]: https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/pull/108

@@ -22,9 +22,9 @@ from jinja2 import Environment, FileSystemLoader
 
 TEMPLATE_FOLDER = "./autogen"
 BASE_TEMPLATE_OPTIONS = {
-        'autogeneration_note': '// This file was automatically generated ' +
-                               'from a template in {folder}'.format(
-                                   folder=TEMPLATE_FOLDER
+    'autogeneration_note': '// This file was automatically generated ' +
+                           'from a template in {folder}'.format(
+                               folder=TEMPLATE_FOLDER
                                ),
 }
 
@@ -46,7 +46,15 @@ MODULES = [
         'private_cluster': False,
     }),
     Module("./modules/private-cluster", {
+        'private_cluster': True
+    }),
+    Module("./modules/beta-private-cluster", {
         'private_cluster': True,
+        'beta_cluster': True,
+    }),
+    Module("./modules/beta-public-cluster", {
+        'private_cluster': False,
+        'beta_cluster': True,
     }),
 ]
 DEVNULL_FILE = open(os.devnull, 'w')

@@ -26,10 +26,12 @@ resource "google_container_cluster" "primary" {
   description = "${var.description}"
   project     = "${var.project_id}"
 
-  region         = "${var.region}"
-  node_locations = ["${coalescelist(compact(var.zones), sort(random_shuffle.available_zones.result))}"]
+  region            = "${var.region}"
+  node_locations    = ["${coalescelist(compact(var.zones), sort(random_shuffle.available_zones.result))}"]
+  cluster_ipv4_cidr = "${var.cluster_ipv4_cidr}"
+  network           = "${replace(data.google_compute_network.gke_network.self_link, "https://www.googleapis.com/compute/v1/", "")}"
+  network_policy    = "${local.cluster_network_policy["${var.network_policy ? "enabled" : "disabled"}"]}"
 
-  network            = "${replace(data.google_compute_network.gke_network.self_link, "https://www.googleapis.com/compute/v1/", "")}"
   subnetwork         = "${replace(data.google_compute_subnetwork.gke_subnetwork.self_link, "https://www.googleapis.com/compute/v1/", "")}"
   min_master_version = "${local.kubernetes_version_regional}"
 
@@ -87,7 +89,8 @@ resource "google_container_cluster" "primary" {
   }
 
   node_pool {
-    name = "default-pool"
+    name               = "default-pool"
+    initial_node_count = "${var.initial_node_count}"
 
     node_config {
       service_account = "${lookup(var.node_pools[0], "service_account", local.service_account)}"
@@ -147,6 +150,11 @@ resource "google_container_node_pool" "pools" {
       "${concat(var.node_pools_oauth_scopes["all"],
       var.node_pools_oauth_scopes[lookup(var.node_pools[count.index], "name")])}",
     ]
+
+    guest_accelerator {
+      type  = "${lookup(var.node_pools[count.index], "accelerator_type", "")}"
+      count = "${lookup(var.node_pools[count.index], "accelerator_count", 0)}"
+    }
   }
 
   lifecycle {

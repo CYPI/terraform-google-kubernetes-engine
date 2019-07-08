@@ -106,6 +106,11 @@ variable "network_policy" {
   default     = false
 }
 
+variable "network_policy_provider" {
+  description = "The network policy provider."
+  default     = "CALICO"
+}
+
 variable "maintenance_start_time" {
   description = "Time window specified for daily maintenance operations in RFC3339 format"
   default     = "05:00"
@@ -117,6 +122,11 @@ variable "ip_range_pods" {
 
 variable "ip_range_services" {
   description = "The _name_ of the secondary subnet range to use for services"
+}
+
+variable "initial_node_count" {
+  description = "The number of nodes to create in this cluster's default node pool."
+  default     = 0
 }
 
 variable "remove_default_node_pool" {
@@ -212,6 +222,11 @@ variable "ip_masq_link_local" {
   default     = "false"
 }
 
+variable "configure_ip_masq" {
+  description = "Enables the installation of ip masquerading, which is usually no longer required when using aliasied IP addresses. IP masquerading uses a kubectl call, so when you have a private cluster, you will need access to the API server."
+  default     = "false"
+}
+
 variable "logging_service" {
   description = "The logging service that the cluster should write logs to. Available options include logging.googleapis.com, logging.googleapis.com/kubernetes (beta), and none"
   default     = "logging.googleapis.com"
@@ -228,6 +243,11 @@ variable "service_account" {
 }
 {% if private_cluster %}
 
+variable "deploy_using_private_endpoint" {
+  description = "(Beta) A toggle for Terraform and kubectl to connect to the master's internal IP address during deployment."
+  default     = "false"
+}
+
 variable "enable_private_endpoint" {
   description = "(Beta) Whether the master's internal IP address is used as the cluster endpoint"
   default     = false
@@ -241,6 +261,49 @@ variable "enable_private_nodes" {
 variable "master_ipv4_cidr_block" {
   description = "(Beta) The IP range in CIDR notation to use for the hosted master network"
   default     = "10.0.0.0/28"
+}
+{% endif %}
+{% if beta_cluster %}
+variable "istio" {
+  description = "(Beta) Enable Istio addon"
+  default     = false
+}
+
+variable "cloudrun" {
+  description = "(Beta) Enable CloudRun addon"
+  default     = false
+}
+
+variable "database_encryption" {
+  description = <<EOF
+  Application-layer Secrets Encryption settings. Example:
+  database_encryption = [{
+    state = "ENCRYPTED",
+    key_name = "projects/my-project/locations/global/keyRings/my-ring/cryptoKeys/my-key"
+  }]
+  EOF
+  type        = "list"
+  default     = [{
+    state     = "DECRYPTED"
+    key_name  = ""
+  }]
+}
+
+variable "enable_binary_authorization" {
+  description = "Enable BinAuthZ Admission controller"
+  default     = false
+}
+
+variable "pod_security_policy_config" {
+  description = "enabled - Enable the PodSecurityPolicy controller for this cluster. If enabled, pods must be valid under a PodSecurityPolicy to be created."
+  default     = [{
+    "enabled" = false
+  }]
+}
+
+variable "node_metadata" {
+  description = "Specifies how node metadata is exposed to the workload running on the node"
+  default     = "UNSPECIFIED"
 }
 {% endif %}
 
@@ -257,4 +320,9 @@ variable "basic_auth_password" {
 variable "issue_client_certificate" {
   description = "Issues a client certificate to authenticate to the cluster endpoint. To maximize the security of your cluster, leave this option disabled. Client certificates don't automatically rotate and aren't easily revocable. WARNING: changing this after cluster creation is destructive!"
   default     = "false"
+}
+
+variable "cluster_ipv4_cidr" {
+  default     = ""
+  description = "The IP address range of the kubernetes pods in this cluster. Default is an automatically assigned CIDR."
 }

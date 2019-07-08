@@ -26,15 +26,18 @@ resource "google_container_cluster" "zonal_primary" {
   description = "${var.description}"
   project     = "${var.project_id}"
 
-  zone           = "${var.zones[0]}"
-  node_locations = ["${slice(var.zones,1,length(var.zones))}"]
+  zone              = "${var.zones[0]}"
+  node_locations    = ["${slice(var.zones, 1, length(var.zones))}"]
+  cluster_ipv4_cidr = "${var.cluster_ipv4_cidr}"
+  network           = "${replace(data.google_compute_network.gke_network.self_link, "https://www.googleapis.com/compute/v1/", "")}"
+  network_policy    = "${local.cluster_network_policy["${var.network_policy ? "enabled" : "disabled"}"]}"
 
-  network            = "${replace(data.google_compute_network.gke_network.self_link, "https://www.googleapis.com/compute/v1/", "")}"
   subnetwork         = "${replace(data.google_compute_subnetwork.gke_subnetwork.self_link, "https://www.googleapis.com/compute/v1/", "")}"
   min_master_version = "${local.kubernetes_version_zonal}"
 
   logging_service    = "${var.logging_service}"
   monitoring_service = "${var.monitoring_service}"
+
 
   master_authorized_networks_config = ["${var.master_authorized_networks_config}"]
 
@@ -87,7 +90,8 @@ resource "google_container_cluster" "zonal_primary" {
   }
 
   node_pool {
-    name = "default-pool"
+    name               = "default-pool"
+    initial_node_count = "${var.initial_node_count}"
 
     node_config {
       service_account = "${lookup(var.node_pools[0], "service_account", local.service_account)}"
@@ -147,6 +151,11 @@ resource "google_container_node_pool" "zonal_pools" {
       "${concat(var.node_pools_oauth_scopes["all"],
       var.node_pools_oauth_scopes[lookup(var.node_pools[count.index], "name")])}",
     ]
+
+    guest_accelerator {
+      type  = "${lookup(var.node_pools[count.index], "accelerator_type", "")}"
+      count = "${lookup(var.node_pools[count.index], "accelerator_count", 0)}"
+    }
   }
 
   lifecycle {

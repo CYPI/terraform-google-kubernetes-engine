@@ -34,11 +34,30 @@ locals {
   kubernetes_version_regional = "${var.kubernetes_version != "latest" ? var.kubernetes_version : data.google_container_engine_versions.region.latest_master_version}"
   kubernetes_version_zonal    = "${var.kubernetes_version != "latest" ? var.kubernetes_version : data.google_container_engine_versions.zone.latest_master_version}"
   node_version_regional       = "${var.node_version != "" && var.regional ? var.node_version : local.kubernetes_version_regional}"
-  node_version_zonal          = "${var.node_version != "" && !var.regional ? var.node_version : local.kubernetes_version_zonal}"
+  node_version_zonal          = "${var.node_version != "" && ! var.regional ? var.node_version : local.kubernetes_version_zonal}"
   custom_kube_dns_config      = "${length(keys(var.stub_domains)) > 0 ? true : false}"
   network_project_id          = "${var.network_project_id != "" ? var.network_project_id : var.project_id}"
 
   cluster_type = "${var.regional ? "regional" : "zonal"}"
+
+  cluster_network_policy = {
+    enabled = [{
+      enabled  = "true"
+      provider = "${var.network_policy_provider}"
+    }]
+
+    disabled = [{
+      enabled = "false"
+    }]
+  }
+
+  cluster_cloudrun_config = {
+    enabled = [{
+      disabled = "false"
+    }]
+
+    disabled = []
+  }
 
   cluster_type_output_name = {
     regional = "${element(concat(google_container_cluster.primary.*.name, list("")), 0)}"
@@ -128,19 +147,18 @@ locals {
   cluster_master_auth_map         = "${local.cluster_master_auth_list_layer2[0]}"
 
   # cluster locals
-  cluster_name                = "${local.cluster_type_output_name[local.cluster_type]}"
-  cluster_location            = "${local.cluster_type_output_location[local.cluster_type]}"
-  cluster_region              = "${local.cluster_type_output_region[local.cluster_type]}"
-  cluster_zones               = "${sort(local.cluster_type_output_zones[local.cluster_type])}"
-  cluster_endpoint            = "${local.cluster_type_output_endpoint[local.cluster_type]}"
-  cluster_ca_certificate      = "${lookup(local.cluster_master_auth_map, "cluster_ca_certificate")}"
-  cluster_master_version      = "${local.cluster_type_output_master_version[local.cluster_type]}"
-  cluster_min_master_version  = "${local.cluster_type_output_min_master_version[local.cluster_type]}"
-  cluster_logging_service     = "${local.cluster_type_output_logging_service[local.cluster_type]}"
-  cluster_monitoring_service  = "${local.cluster_type_output_monitoring_service[local.cluster_type]}"
-  cluster_node_pools_names    = "${local.cluster_type_output_node_pools_names[local.cluster_type]}"
-  cluster_node_pools_versions = "${local.cluster_type_output_node_pools_versions[local.cluster_type]}"
-
+  cluster_name                               = "${local.cluster_type_output_name[local.cluster_type]}"
+  cluster_location                           = "${local.cluster_type_output_location[local.cluster_type]}"
+  cluster_region                             = "${local.cluster_type_output_region[local.cluster_type]}"
+  cluster_zones                              = "${sort(local.cluster_type_output_zones[local.cluster_type])}"
+  cluster_endpoint                           = "${local.cluster_type_output_endpoint[local.cluster_type]}"
+  cluster_ca_certificate                     = "${lookup(local.cluster_master_auth_map, "cluster_ca_certificate")}"
+  cluster_master_version                     = "${local.cluster_type_output_master_version[local.cluster_type]}"
+  cluster_min_master_version                 = "${local.cluster_type_output_min_master_version[local.cluster_type]}"
+  cluster_logging_service                    = "${local.cluster_type_output_logging_service[local.cluster_type]}"
+  cluster_monitoring_service                 = "${local.cluster_type_output_monitoring_service[local.cluster_type]}"
+  cluster_node_pools_names                   = "${local.cluster_type_output_node_pools_names[local.cluster_type]}"
+  cluster_node_pools_versions                = "${local.cluster_type_output_node_pools_versions[local.cluster_type]}"
   cluster_network_policy_enabled             = "${local.cluster_type_output_network_policy_enabled[local.cluster_type] ? false : true}"
   cluster_http_load_balancing_enabled        = "${local.cluster_type_output_http_load_balancing_enabled[local.cluster_type] ? false : true}"
   cluster_horizontal_pod_autoscaling_enabled = "${local.cluster_type_output_horizontal_pod_autoscaling_enabled[local.cluster_type] ? false : true}"

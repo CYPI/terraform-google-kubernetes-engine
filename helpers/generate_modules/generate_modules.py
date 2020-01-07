@@ -46,13 +46,27 @@ MODULES = [
         'private_cluster': False,
     }),
     Module("./modules/private-cluster", {
+        'module_path': '//modules/private-cluster',
         'private_cluster': True
     }),
     Module("./modules/beta-private-cluster", {
+        'module_path': '//modules/beta-private-cluster',
         'private_cluster': True,
         'beta_cluster': True,
     }),
+    Module("./modules/private-cluster-update-variant", {
+        'module_path': '//modules/private-cluster-update-variant',
+        'private_cluster': True,
+        'update_variant': True,
+    }),
+    Module("./modules/beta-private-cluster-update-variant", {
+        'module_path': '//modules/beta-private-cluster-update-variant',
+        'private_cluster': True,
+        'update_variant': True,
+        'beta_cluster': True,
+    }),
     Module("./modules/beta-public-cluster", {
+        'module_path': '//modules/beta-public-cluster',
         'private_cluster': False,
         'beta_cluster': True,
     }),
@@ -68,9 +82,11 @@ def main(argv):
         lstrip_blocks=True,
     )
     templates = env.list_templates()
-    for template_file in templates:
-        for module in MODULES:
+    for module in MODULES:
+        for template_file in templates:
             template = env.get_template(template_file)
+            if template_file.endswith(".tf.tmpl"):
+                template_file = template_file.replace(".tf.tmpl", ".tf")
             rendered = template.render(
                 module.template_options(BASE_TEMPLATE_OPTIONS)
             )

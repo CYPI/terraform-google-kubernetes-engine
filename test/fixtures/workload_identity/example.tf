@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-terraform {
-  required_version = ">= 0.12"
+module "example" {
+  source = "../../../examples/workload_identity"
 
-  required_providers {
-{% if beta_cluster %}
-    google-beta = ">= 2.18, <4.0.0"
-{% else %}
-    google = ">= 2.18, <4.0.0"
-{% endif %}
-  }
+  project_id          = var.project_ids[0]
+  cluster_name_suffix = "-${random_string.suffix.result}"
+  region              = var.region
+  network             = google_compute_network.main.name
+  subnetwork          = google_compute_subnetwork.main.name
+  ip_range_pods       = google_compute_subnetwork.main.secondary_ip_range[0].range_name
+  ip_range_services   = google_compute_subnetwork.main.secondary_ip_range[1].range_name
 }
+

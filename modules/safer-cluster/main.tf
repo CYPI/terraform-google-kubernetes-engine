@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// This file was automatically generated from a template in ./autogen/safer-cluster
+
 // The safer-cluster module is based on a private cluster, with a several
 // settings set to recommended values by default.
 module "gke" {
@@ -73,6 +75,9 @@ module "gke" {
   stub_domains         = var.stub_domains
   upstream_nameservers = var.upstream_nameservers
 
+  logging_service    = var.logging_service
+  monitoring_service = var.monitoring_service
+
   // We never use the default service account for the cluster. The default
   // project/editor permissions can create problems if nodes were to be ever
   // compromised.
@@ -96,7 +101,7 @@ module "gke" {
   cluster_resource_labels = var.cluster_resource_labels
 
   // We enable private endpoints to limit exposure.
-  enable_private_endpoint       = true
+  enable_private_endpoint       = var.enable_private_endpoint
   deploy_using_private_endpoint = true
 
   // Private nodes better control public exposure, and reduce
@@ -119,9 +124,7 @@ module "gke" {
 
   // Define PodSecurityPolicies for differnet applications.
   // Example: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#example
-  pod_security_policy_config = [{
-    "enabled" = true
-  }]
+  pod_security_policy_config = var.pod_security_policy_config
 
   resource_usage_export_dataset_id = var.resource_usage_export_dataset_id
 
@@ -140,4 +143,6 @@ module "gke" {
   authenticator_security_group = var.authenticator_security_group
 
   enable_shielded_nodes = var.enable_shielded_nodes
+
+  skip_provisioners = var.skip_provisioners
 }
